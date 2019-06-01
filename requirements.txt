@@ -2,3 +2,4 @@ discord.py[voice]
 sqlalchemy
 flask
 flask_wtf
+requests_oauthlib
