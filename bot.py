@@ -1,9 +1,6 @@
-import discord
 from discord.ext import commands
-from discord.utils import get
-from discord import opus
 
-from sql import create_server, create_ssettings, get_servers
+from sql import create_server
 from sqlalchemy.exc import IntegrityError
 
 import os
@@ -37,4 +34,3 @@ def get_guilds(): #get the guilds the bot is connected to
     return bot_guilds
 
 bot.run(token)
-
