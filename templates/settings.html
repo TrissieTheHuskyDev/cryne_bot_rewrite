@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <form action="" method="post" class="form-inline " role="form">
+        <div class="row-auto">
+            {{ form.servers(class="form-control form-control-lg", style="width:auto") }}
+            {{ form.logchid(class="form-control form-control-lg", style="width:auto") }}
+            {{ form.botcchid(class="form-control form-control-lg", style="width:auto") }}
+            {{ form.remoj(class="form-control form-control-lg", style="width:auto") }}
+            {{ form.rcount(class="form-control form-control-lg", style="width:auto") }}
+            {{ form.belvchid(class="form-control form-control-lg", style="width:auto") }}
+            {{ form.banmsgch(class="form-control form-control-lg", style="width:auto") }}
+            {{ form.leavemsgch(class="form-control form-control-lg", style="width:auto") }}
+            {{ form.kickmsgch(class="form-control form-control-lg", style="width:auto") }}
+            {{ form.rcmsgch(class="form-control form-control-lg", style="width:auto") }}
+            {{ form.adminrole(class="form-control form-control-lg", style="width:auto") }}
+            {{ form.roleonjoin(class="form-control form-control-lg", style="width:auto") }}
+            {{ form.rssurl(class="form-control form-control-lg", style="width:auto") }}
+        </div>
+        <div class="row-auto">
+            {{ form.csrf_token }}
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+
+    </form>
+{% endblock content %}

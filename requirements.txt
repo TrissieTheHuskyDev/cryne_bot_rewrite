@@ -1,0 +1,4 @@
+discord.py[voice]
+sqlalchemy
+flask
+flask_wtf
