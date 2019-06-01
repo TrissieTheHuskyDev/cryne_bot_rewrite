@@ -16,7 +16,7 @@ class ServerSettings(SQL_Base):
     __tablename__ = "ServerSetting"
 
     setid = Column('setid', Integer, primary_key=True)
-    sid = Column('sid', Integer, ForeignKey(Server.sid))
+    sid = Column('sid', Integer, nullable=False, unique=True)
 
     logchid = Column('logchid', Integer, nullable=False)
     botcchid = Column('botcchid', Integer, nullable=False)
@@ -47,14 +47,12 @@ def create_server(sname, dsid):
     session.commit()
     session.close()
 
-def create_ssettings(sid, msg ,presName ,presType ,logchid ,botcchid , remoj , rcount , belvchid ,banmsgchid ,leavemsgchid ,kickmsgchid ,rcmsgchid ,adminrole ,roleonjoin ,rssurl):
+def create_ssettings(sid ,logchid ,botcchid , remoj , rcount , belvchid ,banmsgchid ,leavemsgchid ,kickmsgchid
+                     ,rcmsgchid ,adminrole ,roleonjoin ,rssurl):
     session = Session()
     ssettings = ServerSettings()
 
     ssettings.sid = sid
-    ssettings.msg = msg
-    ssettings.presName = presName
-    ssettings.presType = presType
     ssettings.logchid = logchid
     ssettings.botcchid = botcchid
     ssettings.remoj = remoj
@@ -80,4 +78,21 @@ def get_servers():
     for server in query:
         servers.append({server.dsid : server.sname})
 
+    session.close()
+
     return servers
+
+def get_settings(sid):
+    session = Session()
+    query = session.query(ServerSettings).filter_by(sid=sid).all()
+
+    settings = []
+    for setting in query:
+        settings.append([setting.setid, {setting.sid : [setting.logchid, setting.botcchid, setting.remoj,
+                                                        setting.rcount, setting.belvchid, setting.banmsgchid,
+                                                        setting.leavemsgchid, setting.kickmsgchid, setting.rcmsgchid,
+                                                        setting.adminrole, setting.roleonjoin, setting.rssurl]}])
+
+    session.close()
+
+    return settings
