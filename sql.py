@@ -1,7 +1,6 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, query
-from sqlite3 import IntegrityError
+from sqlalchemy.orm import sessionmaker
 
 SQL_Base = declarative_base()
 
@@ -84,15 +83,121 @@ def get_servers():
 
 def get_settings(sid):
     session = Session()
-    query = session.query(ServerSettings).filter_by(sid=sid).all()
+    server = session.query(ServerSettings).filter_by(sid=sid).first()
 
     settings = []
-    for setting in query:
-        settings.append([setting.setid, {setting.sid : [setting.logchid, setting.botcchid, setting.remoj,
-                                                        setting.rcount, setting.belvchid, setting.banmsgchid,
-                                                        setting.leavemsgchid, setting.kickmsgchid, setting.rcmsgchid,
-                                                        setting.adminrole, setting.roleonjoin, setting.rssurl]}])
+    settings.append([server.setid, {server.sid : [server.logchid, server.botcchid, server.remoj, server.rcount,
+                                                server.belvchid, server.banmsgchid, server.leavemsgchid, server.kickmsgchid,
+                                                server.rcmsgchid, server.adminrole, server.roleonjoin, server.rssurl]}])
 
     session.close()
-
     return settings
+
+
+def edit_logchid(sid, logchid):
+    session = Session()
+    server = session.query(ServerSettings).filter_by(sid=sid).first()
+
+    server.logchid = logchid
+
+    session.commit()
+    session.close()
+
+def edit_botcchid(sid, botcchid):
+    session = Session()
+    server = session.query(ServerSettings).filter_by(sid=sid).first()
+
+    server.botcchid = botcchid
+
+    session.commit()
+    session.close()
+
+def edit_remoj(sid, remoj):
+    session = Session()
+    server = session.query(ServerSettings).filter_by(sid=sid).first()
+
+    server.remoj = remoj
+
+    session.commit()
+    session.close()
+
+def edit_rcount(sid, rcount):
+    session = Session()
+    server = session.query(ServerSettings).filter_by(sid=sid).first()
+
+    server.rcount = rcount
+
+    session.commit()
+    session.close()
+
+def edit_belvchid(sid, belvchid):
+    session = Session()
+    server = session.query(ServerSettings).filter_by(sid=sid).first()
+
+    server.belvchid = belvchid
+
+    session.commit()
+    session.close()
+
+def edit_banmsgchid(sid, banmsgchid):
+    session = Session()
+    server = session.query(ServerSettings).filter_by(sid=sid).first()
+
+    server.banmsgchid = banmsgchid
+
+    session.commit()
+    session.close()
+
+def edit_leavemsgchid(sid, leavemsgchid):
+    session = Session()
+    server = session.query(ServerSettings).filter_by(sid=sid).first()
+
+    server.leavemsgchid = leavemsgchid
+
+    session.commit()
+    session.close()
+
+def edit_kickmsgchid(sid, kickmsgchid):
+    session = Session()
+    server = session.query(ServerSettings).filter_by(sid=sid).first()
+
+    server.kickmsgchid = kickmsgchid
+
+    session.commit()
+    session.close()
+
+def edit_rcmsgchid(sid, rcmsgchid):
+    session = Session()
+    server = session.query(ServerSettings).filter_by(sid=sid).first()
+
+    server.rcmsgchid = rcmsgchid
+
+    session.commit()
+    session.close()
+
+def edit_adminrole(sid, adminrole):
+    session = Session()
+    server = session.query(ServerSettings).filter_by(sid=sid).first()
+
+    server.adminrole = adminrole
+
+    session.commit()
+    session.close()
+
+def edit_roleonjoin(sid, roleonjoin):
+    session = Session()
+    server = session.query(ServerSettings).filter_by(sid=sid).first()
+
+    server.roleonjoin = roleonjoin
+
+    session.commit()
+    session.close()
+
+def edit_rssurl(sid, rssurl):
+    session = Session()
+    server = session.query(ServerSettings).filter_by(sid=sid).first()
+
+    server.rssurl = rssurl
+
+    session.commit()
+    session.close()
