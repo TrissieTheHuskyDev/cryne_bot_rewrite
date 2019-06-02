@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from sql import create_server
+import sql
 from sqlalchemy.exc import IntegrityError
 
 import os
@@ -14,11 +14,9 @@ bot.remove_command("help")
 async def on_ready():
     for guild in bot.guilds:
         try:
-            create_server(guild.name, guild.id)
+            sql.create_server(guild.name, guild.id)
         except IntegrityError as e:
             print("WARN: IntegrityError! Konnte Server {} | {} nicht erstellen!".format(guild.name, guild.id))
-
-
 
 @bot.event
 async def on_command_error(ctx):
@@ -33,4 +31,6 @@ def get_guilds(): #get the guilds the bot is connected to
     print(bot_guilds)
     return bot_guilds
 
-bot.run(token)
+
+if __name__ == "__main__":
+    bot.run(token)
