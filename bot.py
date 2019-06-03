@@ -1,4 +1,5 @@
 from discord.ext import commands
+import discord
 
 import sql
 from sqlalchemy.exc import IntegrityError
@@ -45,6 +46,18 @@ async def createsettings_error(ctx, error):
         await ctx.send("One of the arguments has got the wrong type (mixed up arguments?)")
     if "ValueError" in str(error):
         await ctx.send("One of the channel IDs are invalid or the bot cant see the channel")
+
+
+@bot.command(pass_ctx=True)
+async def info(ctx):
+    paddi = bot.get_user(369129934917992450)
+    tb = bot.get_user(583738641503879184)
+    embed = discord.Embed(title="Info: cryne_bot",
+                          url="https://github.com/itsCryne/cryne_bot_rewrite/blob/master/README.md", description = "cryne_bot, programmed by " + paddi.mention, color=0xffb82b)
+    embed.set_author(name="cryne_bot", url="https://github.com/itsCryne/cryne_bot_rewrite", icon_url = tb.avatar_url)
+    embed.set_footer(text="Licensed under CC BY-NC-SA 4.0")
+    await ctx.send(embed=embed)
+
 
 
 def get_guilds(): #get the guilds the bot is connected to
