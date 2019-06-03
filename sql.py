@@ -29,6 +29,7 @@ class ServerSettings(SQL_Base):
     adminrole = Column('adminrole', String, nullable=False)
     roleonjoin = Column('roleonjoin', String, nullable=False)
     rssurl = Column('rssurl', String, nullable=False)
+    rsschannelid = Column('rsschannelid', Integer, nullable=False)
 
 engine = create_engine('sqlite:///servers.db', echo=True)
 SQL_Base.metadata.create_all(bind=engine)
@@ -47,9 +48,17 @@ def create_server(sname, dsid):
     session.close()
 
 def create_ssettings(sid ,logchid ,botcchid , remoj , rcount , belvchid ,banmsgchid ,leavemsgchid ,kickmsgchid
-                     ,rcmsgchid ,adminrole ,roleonjoin ,rssurl):
+                     ,rcmsgchid ,adminrole ,roleonjoin ,rssurl, rsschannelid):
     session = Session()
     ssettings = ServerSettings()
+
+    intvars = [sid, logchid, botcchid, rcount, belvchid, banmsgchid, leavemsgchid, kickmsgchid, rcmsgchid, rsschannelid]
+
+    try:
+        for var in intvars:
+            int(var)
+    except Exception:
+        raise TypeError
 
     ssettings.sid = sid
     ssettings.logchid = logchid
@@ -64,6 +73,7 @@ def create_ssettings(sid ,logchid ,botcchid , remoj , rcount , belvchid ,banmsgc
     ssettings.adminrole = adminrole
     ssettings.roleonjoin = roleonjoin
     ssettings.rssurl = rssurl
+    ssettings.rsschannelid = rsschannelid
 
     session.add(ssettings)
     session.commit()
@@ -88,7 +98,7 @@ def get_settings(sid):
     settings = []
     settings.append([server.setid, {server.sid : [server.logchid, server.botcchid, server.remoj, server.rcount,
                                                 server.belvchid, server.banmsgchid, server.leavemsgchid, server.kickmsgchid,
-                                                server.rcmsgchid, server.adminrole, server.roleonjoin, server.rssurl]}])
+                                                server.rcmsgchid, server.adminrole, server.roleonjoin, server.rssurl, server.rsschannelid]}])
 
     session.close()
     return settings
@@ -201,3 +211,9 @@ def edit_rssurl(sid, rssurl):
 
     session.commit()
     session.close()
+
+def edit_rsschannelid(sid, rsschannelid):
+    session = Session()
+    server = session.query(ServerSettings).filter_by(sid=sid).first()
+
+    server.rsschannelid = rsschannelid
