@@ -6,9 +6,9 @@ from requests_oauthlib import OAuth2Session
 from flask_wtf import FlaskForm
 from wtforms import StringField, validators, SubmitField, SelectField
 
-from sql import create_server, create_ssettings, get_servers
+from sql import  get_servers
 
-from perms import hasPerm
+from helper import hasPerm
 
 ########################################################################################################################
 
