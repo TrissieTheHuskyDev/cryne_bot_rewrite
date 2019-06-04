@@ -2,6 +2,8 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from helper import isInt
+
 SQL_Base = declarative_base()
 
 class Server(SQL_Base):
@@ -54,11 +56,9 @@ def create_ssettings(sid ,logchid ,botcchid , remoj , rcount , belvchid ,banmsgc
 
     intvars = [sid, logchid, botcchid, rcount, belvchid, banmsgchid, leavemsgchid, kickmsgchid, rcmsgchid, rsschannelid]
 
-    try:
-        for var in intvars:
-            int(var)
-    except Exception:
-        raise TypeError
+
+    for var in intvars:
+        isInt(var, erroring=True)
 
     ssettings.sid = sid
     ssettings.logchid = logchid
@@ -105,6 +105,7 @@ def get_settings(sid):
 
 
 def edit_logchid(sid, logchid):
+    isInt(logchid, erroring=True)
     session = Session()
     server = session.query(ServerSettings).filter_by(sid=sid).first()
 
@@ -114,6 +115,7 @@ def edit_logchid(sid, logchid):
     session.close()
 
 def edit_botcchid(sid, botcchid):
+    isInt(botcchid, erroring=True)
     session = Session()
     server = session.query(ServerSettings).filter_by(sid=sid).first()
 
@@ -132,6 +134,7 @@ def edit_remoj(sid, remoj):
     session.close()
 
 def edit_rcount(sid, rcount):
+    isInt(rcount, erroring=True)
     session = Session()
     server = session.query(ServerSettings).filter_by(sid=sid).first()
 
@@ -141,6 +144,7 @@ def edit_rcount(sid, rcount):
     session.close()
 
 def edit_belvchid(sid, belvchid):
+    isInt(belvchid, erroring=True)
     session = Session()
     server = session.query(ServerSettings).filter_by(sid=sid).first()
 
@@ -150,6 +154,7 @@ def edit_belvchid(sid, belvchid):
     session.close()
 
 def edit_banmsgchid(sid, banmsgchid):
+    isInt(banmsgchid, erroring=True)
     session = Session()
     server = session.query(ServerSettings).filter_by(sid=sid).first()
 
@@ -159,6 +164,7 @@ def edit_banmsgchid(sid, banmsgchid):
     session.close()
 
 def edit_leavemsgchid(sid, leavemsgchid):
+    isInt(leavemsgchid, erroring=True)
     session = Session()
     server = session.query(ServerSettings).filter_by(sid=sid).first()
 
@@ -168,6 +174,7 @@ def edit_leavemsgchid(sid, leavemsgchid):
     session.close()
 
 def edit_kickmsgchid(sid, kickmsgchid):
+    isInt(kickmsgchid, erroring=True)
     session = Session()
     server = session.query(ServerSettings).filter_by(sid=sid).first()
 
@@ -177,6 +184,7 @@ def edit_kickmsgchid(sid, kickmsgchid):
     session.close()
 
 def edit_rcmsgchid(sid, rcmsgchid):
+    isInt(rcmsgchid, erroring=True)
     session = Session()
     server = session.query(ServerSettings).filter_by(sid=sid).first()
 
@@ -186,6 +194,7 @@ def edit_rcmsgchid(sid, rcmsgchid):
     session.close()
 
 def edit_adminrole(sid, adminrole):
+    isInt(adminrole, erroring=True)
     session = Session()
     server = session.query(ServerSettings).filter_by(sid=sid).first()
 
@@ -213,6 +222,7 @@ def edit_rssurl(sid, rssurl):
     session.close()
 
 def edit_rsschannelid(sid, rsschannelid):
+    isInt(rsschannelid, erroring=True)
     session = Session()
     server = session.query(ServerSettings).filter_by(sid=sid).first()
 
