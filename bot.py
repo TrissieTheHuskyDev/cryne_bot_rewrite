@@ -8,23 +8,43 @@ import os
 
 token = os.environ['TOKEN']
 
-bot = commands.Bot("cb-")
+def prefix(bot, message):
+    id = message.guild.id
+    prefix_lst = sql.get_servers()
+    prefix = prefix_lst[id][1]
+    return prefix
+
+bot = commands.Bot(command_prefix=prefix)
 
 @bot.event
 async def on_ready():
     for guild in bot.guilds:
         try:
-            sql.create_server(guild.name, guild.id)
+            sql.create_server(guild.name, guild.id, "cb-")
         except IntegrityError as e:
             print("WARN: IntegrityError! Konnte Server {} | {} nicht erstellen!".format(guild.name, guild.id))
 
 @bot.event
 async def on_guild_join(guild):
     try:
-        sql.create_server(guild.name, guild.id)
+        sql.create_server(guild.name, guild.id, "cb-")
     except IntegrityError as e:
         print("WARN: IntegrityError! Konnte Server {} | {} nicht erstellen!".format(guild.name, guild.id))
 
+
+@bot.command(pass_ctx=True)
+@commands.has_permissions(administrator=True)
+async def edit_prefix(ctx, prefix):
+    print(prefix)
+    sid = ctx.guild.id
+    sql.edit_prefix(sid, prefix)
+    await ctx.channel.send("Prefix changed to `{}`".format(prefix))
+
+
+@edit_prefix.error
+async def prefix_error(ctx, error):
+    print(error)
+    await ctx.send("An error occured whilst editing this setting! Check your command")
 
 @bot.command(pass_ctx=True)
 @commands.has_permissions(administrator=True)

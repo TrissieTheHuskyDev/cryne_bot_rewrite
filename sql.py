@@ -12,6 +12,7 @@ class Server(SQL_Base):
     sid = Column('sid', Integer, primary_key=True)
     dsid = Column('dsid', Integer, nullable=False, unique=True)
     sname = Column('sname', String, nullable=False)
+    prefix = Column('prefix', String, nullable=False)
 
 class ServerSettings(SQL_Base):
     __tablename__ = "ServerSetting"
@@ -38,12 +39,13 @@ SQL_Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
 
 
-def create_server(sname, dsid):
+def create_server(sname, dsid, prefix):
     session = Session()
     server = Server()
 
     server.sname = sname
     server.dsid = dsid
+    server.prefix = prefix
 
     session.add(server)
     session.commit()
@@ -83,9 +85,9 @@ def get_servers():
     session = Session()
     query = session.query(Server).all()
 
-    servers = []
+    servers = {}
     for server in query:
-        servers.append({server.dsid : server.sname})
+        servers.update({server.dsid : [server.sname, server.prefix]})
 
     session.close()
 
@@ -103,6 +105,17 @@ def get_settings(sid):
     session.close()
     return settings
 
+
+def edit_prefix(dsid, prefix):
+    session = Session()
+    server = session.query(Server).filter_by(dsid=dsid).first()
+
+    print(server)
+
+    server.prefix = prefix
+
+    session.commit()
+    session.close()
 
 def edit_logchid(sid, logchid):
     isInt(logchid, erroring=True)
