@@ -3,7 +3,11 @@ from discord.ext import commands
 
 import sql
 
+from command_checks import settings_created
+
 class Edit(commands.Cog):
+
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def edit_prefix(self, ctx, prefix):
@@ -17,6 +21,7 @@ class Edit(commands.Cog):
         print(error)
         await ctx.send("An error occured whilst editing this setting! Check your command")
 
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def createsettings(self, ctx, logchid, botcchid, remoj, rcount, belvchid, banmsgchid, leavemsgchid, kickmsgchid,
@@ -46,6 +51,8 @@ class Edit(commands.Cog):
         if "ValueError" in str(error):
             await ctx.send("One of the channel IDs are invalid or the bot cant see the channel")
 
+    @settings_created()
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def edit_logchid(self, ctx, logchid):
@@ -61,6 +68,8 @@ class Edit(commands.Cog):
     async def logchid_error(self, ctx, error):
         await ctx.send("An error occured whilst editing this setting! Check your command")
 
+    @settings_created()
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def edit_botcchid(self, ctx, botcchid):
@@ -76,6 +85,8 @@ class Edit(commands.Cog):
     async def botcchid_error(self, ctx, error):
         await ctx.send("An error occured whilst editing this setting! Check your command")
 
+    @settings_created()
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def edit_remoj(self, ctx, remoj):
@@ -86,6 +97,8 @@ class Edit(commands.Cog):
     async def remoj_error(self, ctx, error):
         await ctx.send("An error occured whilst editing this setting! Check your command")
 
+    @settings_created()
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def edit_rcount(self, ctx, rcount):
@@ -97,6 +110,8 @@ class Edit(commands.Cog):
         print(error)
         await ctx.send("An error occured whilst editing this setting! Check your command")
 
+    @settings_created()
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def edit_belvchid(self, ctx, belvchid):
@@ -112,6 +127,8 @@ class Edit(commands.Cog):
     async def belvchid_error(self, ctx, error):
         await ctx.send("An error occured whilst editing this setting! Check your command")
 
+    @settings_created()
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def edit_banmsgchid(self, ctx, banmsgchid):
@@ -127,6 +144,8 @@ class Edit(commands.Cog):
     async def banmsgchid_error(self, ctx, error):
         await ctx.send("An error occured whilst editing this setting! Check your command")
 
+    @settings_created()
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def edit_leavemsgchid(self, ctx, leavemsgchid):
@@ -142,6 +161,8 @@ class Edit(commands.Cog):
     async def leavemsgchid_error(self, ctx, error):
         await ctx.send("An error occured whilst editing this setting! Check your command")
 
+    @settings_created()
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def edit_kickmsgchid(self, ctx, kickmsgchid):
@@ -157,6 +178,8 @@ class Edit(commands.Cog):
     async def kickmsgchid_error(self, ctx, error):
         await ctx.send("An error occured whilst editing this setting! Check your command")
 
+    @settings_created()
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def edit_rcmsgchid(self, ctx, rcmsgchid):
@@ -172,6 +195,8 @@ class Edit(commands.Cog):
     async def rcmsgchid_error(self, ctx, error):
         await ctx.send("An error occured whilst editing this setting! Check your command")
 
+    @settings_created()
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def edit_adminrole(self, ctx, adminrole):
@@ -182,6 +207,8 @@ class Edit(commands.Cog):
     async def adminrole_error(self, ctx, error):
         await ctx.send("An error occured whilst editing this setting! Check your command")
 
+    @settings_created()
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def edit_roleonjoin(self, ctx, roleonjoin):
@@ -192,6 +219,8 @@ class Edit(commands.Cog):
     async def roleonjoin_error(self, ctx, error):
         await ctx.send("An error occured whilst editing this setting! Check your command")
 
+    @settings_created()
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def edit_rssurl(self, ctx, rssurl):
@@ -202,6 +231,8 @@ class Edit(commands.Cog):
     async def rssurl_error(self, ctx, error):
         await ctx.send("An error occured whilst editing this setting! Check your command")
 
+    @settings_created()
+    @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def edit_rsschannelid(self, ctx, rsschannelid):
