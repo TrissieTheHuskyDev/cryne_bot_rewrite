@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import asyncio
 
 import sql
 
@@ -16,13 +17,16 @@ class Misc(commands.Cog):
                               description="cryne_bot, programmed by " + paddi.mention, color=0xffb82b)
         embed.set_author(name="cryne_bot", url="https://github.com/itsCryne/cryne_bot_rewrite", icon_url=tb.avatar_url)
         embed.add_field(name="A (more or less) simple moderation bot",
-                        value="Currently present on " + str(len(self.bot.guilds)) + " guilds")
+                        value="Currently present on " + str(len(self.bot.guilds)) + " guilds with " + str(len(self.bot.users)) + " members")
         await ctx.send(embed=embed)
 
     @commands.command(pass_ctx=True)
     async def register_users(self, ctx):
-        for member in self.bot.get_all_members():
-            sql.register_user(member.id, member.guild.id)
+        for member in self.bot.users:
+            sql.delete_user(member.id)
+
+        for member in self.bot.users:
+            sql.register_user(member.id, member.name)
 
 def setup(bot):
     bot.add_cog(Misc(bot))
