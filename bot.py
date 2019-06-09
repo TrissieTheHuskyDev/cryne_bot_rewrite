@@ -1,11 +1,9 @@
 import discord
 from discord.ext import commands
+
 import sql
 
 import os
-
-
-token = os.environ['TOKEN']
 
 
 def prefix(bot, message):
@@ -17,15 +15,15 @@ def prefix(bot, message):
     return prefix
 
 
-bot = commands.Bot(command_prefix=prefix)
-
-
-cog_dir = "cogs."
-base_cogs = ["cog_handler", "edit_settings", "events", "misc_commands", "misc_helper"]
-
-for cog in base_cogs:
-    bot.load_extension(cog_dir + cog)
-
-
 if __name__ == "__main__":
+    bot = commands.Bot(command_prefix=prefix)
+
+    token = os.environ['TOKEN']
+
+    cog_dir = "cogs."
+    base_cogs = ["cog_handler", "edit_settings", "events", "misc_commands", "misc_helper"]
+
+    for cog in base_cogs:
+        bot.load_extension(cog_dir + cog)
+
     bot.run(token)
