@@ -4,6 +4,8 @@ from sqlalchemy.orm import sessionmaker
 
 from helper import isInt
 
+import asyncio
+
 SQL_Base = declarative_base()
 
 class Server(SQL_Base):
@@ -57,7 +59,7 @@ class Users(SQL_Base):
 
     userid = Column('userid', Integer, primary_key=True)
     duserid = Column('duserid', Integer, nullable=False)
-    sid = Column('sid', Integer, nullable=False)
+    name = Column('name', String, nullable=False)
 
 
 engine = create_engine('sqlite:///servers.db', echo=True)
@@ -284,13 +286,21 @@ def log_msg(dmsgid, sid, chid, time, content, author):
     session.commit()
     session.close()
 
-def register_user(duserid, sid):
+def register_user(duserid, name):
     session = Session()
     user = Users()
 
     user.duserid = duserid
-    user.sid = sid
+    user.name = name
 
     session.add(user)
+    session.commit()
+    session.close()
+
+def delete_user(duserid):
+
+    session = Session()
+    users = session.query(Users).filter_by(duserid=duserid).delete()
+
     session.commit()
     session.close()
