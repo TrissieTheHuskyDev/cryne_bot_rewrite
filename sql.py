@@ -4,7 +4,6 @@ from sqlalchemy.orm import sessionmaker
 
 from helper import isInt
 
-import asyncio
 
 SQL_Base = declarative_base()
 
@@ -53,6 +52,7 @@ class Messages(SQL_Base):
     time = Column('time', Integer, nullable=False)
     content = Column('content', String, nullable=False)
     author = Column('author', String, nullable=False)
+    authorname = Column('authorname', String, nullable=False)
 
 class Users(SQL_Base):
     __tablename__ = "Users"
@@ -61,8 +61,14 @@ class Users(SQL_Base):
     duserid = Column('duserid', Integer, nullable=False)
     name = Column('name', String, nullable=False)
 
+class BannedGuilds(SQL_Base):
+    __tablename__ = "BannedGuilds"
 
-engine = create_engine('sqlite:///servers.db', echo=True)
+    gid = Column('gid', Integer, primary_key=True)
+    dgid = Column('dgid', Integer, nullable=False, unique=True)
+
+
+engine = create_engine('sqlite:///servers.db', echo=False)
 SQL_Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
 
@@ -92,6 +98,7 @@ def create_ssettings(sid ,logchid ,botcchid , remoj , rcount , belvchid ,banmsgc
         isInt(var, erroring=True)
 
     ssettings.sid = sid
+    schannels.sid = sid
     schannels.logchid = logchid
     schannels.botcchid = botcchid
     ssettings.remoj = remoj
@@ -107,6 +114,7 @@ def create_ssettings(sid ,logchid ,botcchid , remoj , rcount , belvchid ,banmsgc
     schannels.rsschid = rsschid
 
     session.add(ssettings)
+    session.add(schannels)
     session.commit()
     session.close()
 
@@ -125,11 +133,13 @@ def get_servers():
 def get_settings(sid):
     session = Session()
     server = session.query(ServerSettings).filter_by(sid=sid).first()
+    serverchannels = session.query(ServerChannels).filter_by(sid=sid).first()
 
-    settings = []
-    settings.append([server.setid, {server.sid : [server.logchid, server.botcchid, server.remoj, server.rcount,
-                                                server.belvchid, server.banmsgchid, server.leavemsgchid, server.kickmsgchid,
-                                                server.rcmsgchid, server.adminrole, server.roleonjoin, server.rssurl, server.rsschid]}])
+
+    settings =  {"logchid" : serverchannels.logchid, "botcchid" : serverchannels.botcchid, "remoj" : server.remoj, "rcount" : server.rcount,
+                                                "belvchid" : serverchannels.belvchid, "banmsgchid" : serverchannels.banmsgchid, "leavemsgchid" : serverchannels.leavemsgchid,
+                                                "kickmsgchid" : serverchannels.kickmsgchid, "rcmsgchid" : serverchannels.rcmsgchid, "adminrole" : server.adminrole,
+                                                "roleonjoin" : server.roleonjoin, "rssurl" : server.rssurl, "rsschid" : serverchannels.rsschid}
 
     session.close()
     return settings
@@ -271,7 +281,7 @@ def edit_rsschid(sid, rsschid):
     server.rsschid = rsschid
 
 
-def log_msg(dmsgid, sid, chid, time, content, author):
+def log_msg(dmsgid, sid, chid, time, content, author, authorname):
     session = Session()
     message = Messages()
 
@@ -281,6 +291,7 @@ def log_msg(dmsgid, sid, chid, time, content, author):
     message.time = time
     message.content = content
     message.author = author
+    message.authorname = authorname
 
     session.add(message)
     session.commit()
@@ -298,9 +309,62 @@ def register_user(duserid, name):
     session.close()
 
 def delete_user(duserid):
-
     session = Session()
     users = session.query(Users).filter_by(duserid=duserid).delete()
 
     session.commit()
     session.close()
+
+
+def ban_guild(dgid):
+    session = Session()
+    banned_guild = BannedGuilds()
+
+    banned_guild.dgid = dgid
+
+    session.add(banned_guild)
+    session.commit()
+    session.close()
+
+
+def unban_guild(dgid):
+    session = Session()
+
+    session.query(BannedGuilds).filter_by(dgid=dgid).delete()
+
+    session.commit()
+    session.close()
+
+def guild_is_banned(dgid):
+    session = Session()
+
+    q_guild = session.query(BannedGuilds).filter_by(dgid=dgid).first()
+
+    if q_guild == None:
+        return False
+    else:
+        return True
+
+def settings_created(dsid):
+    session = Session()
+
+    settings = session.query(ServerSettings).filter_by(sid=dsid).first()
+
+    if settings == None:
+        return False
+    else:
+        return True
+
+def get_gmsgs(dsid):
+    session = Session()
+
+    msgs = session.query(Messages).filter_by(sid=dsid).all()
+
+    msglist = []
+
+    for msg in msgs:
+        str_content = msg.content.replace("\n", " ")
+        msgstring = f"Channel: {msg.chid}, Time: {msg.time}, Author: {msg.author}, Author Name: {msg.authorname}, Content: {str_content} \n"
+        msglist.append(msgstring)
+
+    return msglist
