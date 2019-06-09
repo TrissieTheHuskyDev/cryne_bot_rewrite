@@ -1,10 +1,12 @@
 import discord
 from discord.ext import commands
 
+
 class CogHandler(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.is_owner()
     @commands.command(pass_ctx=True)
     async def reload_cog(self, ctx, cog):
         try:
@@ -21,6 +23,7 @@ class CogHandler(commands.Cog):
                                   color=0x006400)
             await ctx.send(embed=embed)
 
+    @commands.is_owner()
     @commands.command(pass_ctx=True)
     async def load_cog(self, ctx, cog):
         try:
@@ -36,6 +39,7 @@ class CogHandler(commands.Cog):
                                   color=0x006400)
             await ctx.send(embed=embed)
 
+    @commands.is_owner()
     @commands.command(pass_ctx=True)
     async def unload_cog(self, ctx, cog):
         if cog == "cogs.cog_handler":
