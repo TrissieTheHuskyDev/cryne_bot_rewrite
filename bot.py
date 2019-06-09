@@ -21,7 +21,7 @@ if __name__ == "__main__":
     token = os.environ['TOKEN']
 
     cog_dir = "cogs."
-    base_cogs = ["cog_handler", "edit_settings", "events", "misc_commands", "misc_helper"]
+    base_cogs = ["cog_handler", "edit_settings", "events", "misc_commands", "misc_helper", "ban_guild", "logging"]
 
     for cog in base_cogs:
         bot.load_extension(cog_dir + cog)
