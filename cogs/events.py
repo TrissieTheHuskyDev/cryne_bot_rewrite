@@ -19,8 +19,6 @@ class Events(commands.Cog):
 
         sql.log_msg(message.id, message.guild.id, message.channel.id, now, message.content, message.author.id)
 
-        await self.bot.process_commands(message)
-
     @commands.Cog.listener()
     async def on_ready(self):
         for guild in self.bot.guilds:
