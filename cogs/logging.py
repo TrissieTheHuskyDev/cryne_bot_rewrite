@@ -78,7 +78,7 @@ class Logging(commands.Cog):
                     embed.set_author(name=member, icon_url=member.avatar_url)
 
                     await leavemsgch.send(embed=embed)
-            else:
+            elif entry.action != discord.AuditLogAction.ban:
                 embed = discord.Embed(title="User left",
                                       description=f"{member.mention} left from this server", color=0xfff500)
                 embed.set_author(name=member, icon_url=member.avatar_url)
