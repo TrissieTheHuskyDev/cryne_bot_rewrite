@@ -19,6 +19,7 @@ class Misc(commands.Cog):
         embed.set_author(name="cryne_bot", url="https://github.com/itsCryne/cryne_bot_rewrite", icon_url=tb.avatar_url)
         embed.add_field(name="A (more or less) simple moderation bot",
                         value="Currently present on " + str(len(self.bot.guilds)) + " guilds with " + str(len(self.bot.users)) + " members")
+        embed.set_footer(text=f"Programmed in discord.py {discord.__version__} by Rapptz/Danny")
         await ctx.send(embed=embed)
 
     @commands.is_owner()
