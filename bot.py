@@ -16,12 +16,12 @@ def prefix(bot, message):
 
 
 if __name__ == "__main__":
-    bot = commands.Bot(command_prefix=prefix)
+    bot = commands.Bot(command_prefix=prefix, max_messages=1000000)
 
     token = os.environ['TOKEN']
 
     cog_dir = "cogs."
-    base_cogs = ["cog_handler", "edit_settings", "events", "misc_commands", "misc_helper", "ban_guild", "logging"]
+    base_cogs = ["cog_handler", "edit_settings", "events", "misc_commands", "misc_helper", "ban_guild", "logging", "moderation"]
 
     for cog in base_cogs:
         bot.load_extension(cog_dir + cog)
