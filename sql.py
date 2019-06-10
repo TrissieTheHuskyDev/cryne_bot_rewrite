@@ -67,6 +67,14 @@ class BannedGuilds(SQL_Base):
     gid = Column('gid', Integer, primary_key=True)
     dgid = Column('dgid', Integer, nullable=False, unique=True)
 
+class Belmsg(SQL_Base):
+    __tablename__ = "Belmsg"
+
+    msgid = Column('msgid', Integer, primary_key=True)
+    origid = Column('origid', Integer, nullable=False, unique=True)
+    belvid = Column('belvid', Integer, nullable=False, unique=True)
+    content = Column('content', String, nullable=False)
+
 
 engine = create_engine('sqlite:///servers.db', echo=False)
 SQL_Base.metadata.create_all(bind=engine)
@@ -368,3 +376,23 @@ def get_gmsgs(dsid):
         msglist.append(msgstring)
 
     return msglist
+
+def set_belmsg(origid, belvid, content):
+    session = Session()
+    belmsg = Belmsg()
+
+    belmsg.origid = origid
+    belmsg.belvid = belvid
+    belmsg.content = content
+
+    session.add(belmsg)
+    session.commit()
+    session.close()
+
+def get_belmsg(origid):
+    session = Session()
+
+    belmsg = session.query(Belmsg).filter_by(origid=origid).first()
+
+
+    return [belmsg.belvid, belmsg.content]
