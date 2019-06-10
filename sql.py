@@ -29,6 +29,8 @@ class ServerChannels(SQL_Base):
     kickmsgchid = Column('kickmsgchid', Integer, nullable=False)
     rcmsgchid = Column('rcmsgchid', Integer, nullable=False)
     rsschid = Column('rsschid', Integer, nullable=False)
+    unbanchid = Column('unbanchid', Integer, nullable=False)
+    reportchid = Column('reportchid', Integer, nullable=False)
 
 class ServerSettings(SQL_Base):
     __tablename__ = "ServerSetting"
@@ -73,7 +75,16 @@ class Belmsg(SQL_Base):
     msgid = Column('msgid', Integer, primary_key=True)
     origid = Column('origid', Integer, nullable=False, unique=True)
     belvid = Column('belvid', Integer, nullable=False, unique=True)
-    content = Column('content', String, nullable=False)
+    belch = Column('belch', Integer, nullable=False)
+
+class Warns(SQL_Base):
+    __tablename__ = "Warns"
+
+    warnid = Column('warnid', Integer, primary_key=True)
+    name = Column('name', String, nullable=False)
+    userid = Column('userid', Integer, nullable=False)
+    reason = Column('reason', String, nullable=False)
+    time = Column('time', Integer, nullable=False)
 
 
 engine = create_engine('sqlite:///servers.db', echo=False)
@@ -94,12 +105,12 @@ def create_server(sname, dsid, prefix):
     session.close()
 
 def create_ssettings(sid ,logchid ,botcchid , remoj , rcount , belvchid ,banmsgchid ,leavemsgchid ,kickmsgchid
-                     ,rcmsgchid ,adminrole ,roleonjoin ,rssurl, rsschid):
+                     ,rcmsgchid ,adminrole ,roleonjoin ,rssurl, rsschid, reportchid, unbanchid):
     session = Session()
     ssettings = ServerSettings()
     schannels = ServerChannels()
 
-    intvars = [sid, logchid, botcchid, rcount, belvchid, banmsgchid, leavemsgchid, kickmsgchid, rcmsgchid, rsschid]
+    intvars = [sid, logchid, botcchid, rcount, belvchid, banmsgchid, leavemsgchid, kickmsgchid, rcmsgchid, rsschid, reportchid, unbanchid]
 
 
     for var in intvars:
@@ -120,6 +131,8 @@ def create_ssettings(sid ,logchid ,botcchid , remoj , rcount , belvchid ,banmsgc
     ssettings.roleonjoin = roleonjoin
     ssettings.rssurl = rssurl
     schannels.rsschid = rsschid
+    schannels.reportchid = reportchid
+    schannels.unbanchid = unbanchid
 
     session.add(ssettings)
     session.add(schannels)
@@ -147,7 +160,8 @@ def get_settings(sid):
     settings =  {"logchid" : serverchannels.logchid, "botcchid" : serverchannels.botcchid, "remoj" : server.remoj, "rcount" : server.rcount,
                                                 "belvchid" : serverchannels.belvchid, "banmsgchid" : serverchannels.banmsgchid, "leavemsgchid" : serverchannels.leavemsgchid,
                                                 "kickmsgchid" : serverchannels.kickmsgchid, "rcmsgchid" : serverchannels.rcmsgchid, "adminrole" : server.adminrole,
-                                                "roleonjoin" : server.roleonjoin, "rssurl" : server.rssurl, "rsschid" : serverchannels.rsschid}
+                                                "roleonjoin" : server.roleonjoin, "rssurl" : server.rssurl, "rsschid" : serverchannels.rsschid,
+                                                "unbanchid" : serverchannels.unbanchid, "reportchid" : serverchannels.reportchid}
 
     session.close()
     return settings
@@ -287,7 +301,29 @@ def edit_rsschid(sid, rsschid):
     server = session.query(ServerChannels).filter_by(sid=sid).first()
 
     server.rsschid = rsschid
+    
+    session.commit()
+    session.close()
 
+def edit_unbanchid(sid, unbanchid):
+    isInt(unbanchid, erroring=True)
+    session = Session()
+    server = session.query(ServerChannels).filter_by(sid=sid).first()
+
+    server.unbanchid = unbanchid
+    
+    session.commit()
+    session.close()
+    
+def edit_reportchid(sid, reportchid):
+    isInt(reportchid, erroring=True)
+    session = Session()
+    server = session.query(ServerChannels).filter_by(sid=sid).first()
+
+    server.reportchid = reportchid
+    
+    session.commit()
+    session.close()
 
 def log_msg(dmsgid, sid, chid, time, content, author, authorname):
     session = Session()
@@ -377,13 +413,13 @@ def get_gmsgs(dsid):
 
     return msglist
 
-def set_belmsg(origid, belvid, content):
+def set_belmsg(origid, belvid, belch):
     session = Session()
     belmsg = Belmsg()
 
     belmsg.origid = origid
     belmsg.belvid = belvid
-    belmsg.content = content
+    belmsg.belch = belch
 
     session.add(belmsg)
     session.commit()
@@ -394,5 +430,39 @@ def get_belmsg(origid):
 
     belmsg = session.query(Belmsg).filter_by(origid=origid).first()
 
+    if belmsg == None:
+        return None
+    return [belmsg.belvid, belmsg.belch]
 
-    return [belmsg.belvid, belmsg.content]
+def warn(name, userid, reason, time):
+    session = Session()
+    warn = Warns()
+
+    warn.name = name
+    warn.userid = userid
+    warn.reason = reason
+    warn.time = time
+
+    session.add(warn)
+    session.commit()
+    session.close()
+
+def get_warns(userid):
+    session = Session()
+
+    warns = session.query(Warns).filter_by(userid=userid).all()
+
+    warnlist = []
+
+    for warn in warns:
+        warnlist.append([warn.reason, warn.time, warn.name, warn.warnid])
+
+    return warnlist
+
+def del_warn(warnid):
+    session = Session()
+
+    session.query(Warns).filter_by(warnid=warnid).delete()
+
+    session.commit()
+    session.close()
