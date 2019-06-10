@@ -9,6 +9,9 @@ class Logging(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
+        if before.content == after.content:
+            return
+
         if sql.settings_created(int(before.guild.id)) != True:
             return
 
@@ -43,11 +46,18 @@ class Logging(commands.Cog):
         banmsgchid = sql.get_settings(guild.id)["banmsgchid"]
         banmsgch = self.bot.get_channel(banmsgchid)
 
+        log = guild.audit_logs(limit=1)
+
+        async for entry in log:
+            reason = entry.reason
+
         embed = discord.Embed(title="User banned",
                               description=f"{user.mention} was banned from this server", color=0xff0000)
         embed.set_author(name=user, icon_url=user.avatar_url)
-        print("hammer")
+        embed.add_field(name="Reason", value=reason)
+
         await banmsgch.send(embed=embed)
+
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
@@ -65,10 +75,11 @@ class Logging(commands.Cog):
         async for entry in als:
             if entry.action == discord.AuditLogAction.kick:
                 if entry.target == member:
-
+                    reason = entry.reason
                     embed = discord.Embed(title="User was kicked",
                                       description=f"{member.mention} was kicked from this server", color=0xff9000)
                     embed.set_author(name=member, icon_url=member.avatar_url)
+                    embed.add_field(name="Reason", value=reason)
 
                     await kickmsgch.send(embed=embed)
 
@@ -125,6 +136,30 @@ class Logging(commands.Cog):
             embed.add_field(name="New nick", value=after.nick, inline=True)
 
             await rcmsgch.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_member_unban(self, guild, user):
+        print("Unbanning")
+        if sql.settings_created(int(guild.id)) != True:
+            return
+
+        unbanchid = sql.get_settings(guild.id)["unbanchid"]
+        unbanch = self.bot.get_channel(unbanchid)
+
+        log = guild.audit_logs(limit=1)
+
+        async for entry in log:
+            reason = entry.reason
+
+        embed = discord.Embed(title="User unbanned", description=f"{user.mention} was unbanned from this server",
+                              color=0x006400)
+        embed.set_author(name=user)
+        embed.add_field(name="Reason", value=reason, inline=False)
+
+        await unbanch.send(embed=embed)
+
+
+
 
 def setup(bot):
     bot.add_cog(Logging(bot))
