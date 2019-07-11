@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import IntegrityError
 
 from helper import isInt
 
@@ -31,6 +32,7 @@ class ServerChannels(SQL_Base):
     rsschid = Column('rsschid', Integer, nullable=False)
     unbanchid = Column('unbanchid', Integer, nullable=False)
     reportchid = Column('reportchid', Integer, nullable=False)
+    settingschid = Column('settingschid', Integer, nullable=False)
 
 class ServerSettings(SQL_Base):
     __tablename__ = "ServerSetting"
@@ -85,7 +87,40 @@ class Warns(SQL_Base):
     userid = Column('userid', Integer, nullable=False)
     reason = Column('reason', String, nullable=False)
     time = Column('time', Integer, nullable=False)
+    sid = Column('sid', Integer, nullable=False)
 
+class TempBans(SQL_Base):
+    __tablename__ = "TempBans"
+
+    tbid = Column('tbid', Integer, primary_key=True)
+    uid = Column('uid', Integer, nullable=False)
+    name = Column('name', String, nullable=False)
+    tend = Column('tend', Integer, nullable=False)
+    sid = Column('sid', Integer, nullable=False)
+
+
+class JoinMsg(SQL_Base):
+    __tablename__ = "JoinMsg"
+
+    msgid = Column("msgid", Integer, primary_key=True)
+    sid = Column("sid", Integer, nullable=False, unique=True)
+    msg = Column("msg", String, nullable=False)
+
+class TempMutes(SQL_Base):
+    __tablename__ = "TempMutes"
+
+    tmid = Column('tmid', Integer, primary_key=True)
+    uid = Column('uid', Integer, nullable=False)
+    name = Column('name', String, nullable=False)
+    tend = Column('tend', Integer, nullable=False)
+    sid = Column('sid', Integer, nullable=False)
+
+class MuteRole(SQL_Base):
+    __tablename__ = "MuteRole"
+
+    mrid = Column('mrid', Integer, primary_key=True)
+    sid = Column('sid', Integer, nullable=False, unique=True)
+    rid = Column('rid', Integer, nullable=False)
 
 engine = create_engine('sqlite:///servers.db', echo=False)
 SQL_Base.metadata.create_all(bind=engine)
@@ -105,12 +140,12 @@ def create_server(sname, dsid, prefix):
     session.close()
 
 def create_ssettings(sid ,logchid ,botcchid , remoj , rcount , belvchid ,banmsgchid ,leavemsgchid ,kickmsgchid
-                     ,rcmsgchid ,adminrole ,roleonjoin ,rssurl, rsschid, reportchid, unbanchid):
+                     ,rcmsgchid ,adminrole ,roleonjoin ,rssurl, rsschid, reportchid, unbanchid, settingschid):
     session = Session()
     ssettings = ServerSettings()
     schannels = ServerChannels()
 
-    intvars = [sid, logchid, botcchid, rcount, belvchid, banmsgchid, leavemsgchid, kickmsgchid, rcmsgchid, rsschid, reportchid, unbanchid]
+    intvars = [sid, logchid, botcchid, rcount, belvchid, banmsgchid, leavemsgchid, kickmsgchid, rcmsgchid, rsschid, reportchid, unbanchid, settingschid]
 
 
     for var in intvars:
@@ -133,6 +168,7 @@ def create_ssettings(sid ,logchid ,botcchid , remoj , rcount , belvchid ,banmsgc
     schannels.rsschid = rsschid
     schannels.reportchid = reportchid
     schannels.unbanchid = unbanchid
+    schannels.settingschid = settingschid
 
     session.add(ssettings)
     session.add(schannels)
@@ -154,14 +190,21 @@ def get_servers():
 def get_settings(sid):
     session = Session()
     server = session.query(ServerSettings).filter_by(sid=sid).first()
+
+    if server is None:
+        return None
+
     serverchannels = session.query(ServerChannels).filter_by(sid=sid).first()
+
+    if serverchannels is None:
+        return None
 
 
     settings =  {"logchid" : serverchannels.logchid, "botcchid" : serverchannels.botcchid, "remoj" : server.remoj, "rcount" : server.rcount,
                                                 "belvchid" : serverchannels.belvchid, "banmsgchid" : serverchannels.banmsgchid, "leavemsgchid" : serverchannels.leavemsgchid,
                                                 "kickmsgchid" : serverchannels.kickmsgchid, "rcmsgchid" : serverchannels.rcmsgchid, "adminrole" : server.adminrole,
                                                 "roleonjoin" : server.roleonjoin, "rssurl" : server.rssurl, "rsschid" : serverchannels.rsschid,
-                                                "unbanchid" : serverchannels.unbanchid, "reportchid" : serverchannels.reportchid}
+                                                "unbanchid" : serverchannels.unbanchid, "reportchid" : serverchannels.reportchid, "settingschid" : serverchannels.settingschid}
 
     session.close()
     return settings
@@ -325,6 +368,17 @@ def edit_reportchid(sid, reportchid):
     session.commit()
     session.close()
 
+
+def edit_settingschid(sid, settingschid):
+    isInt(settingschid, erroring=True)
+    session = Session()
+    server = session.query(ServerChannels).filter_by(sid=sid).first()
+
+    server.reportchid = settingschid
+
+    session.commit()
+    session.close()
+
 def log_msg(dmsgid, sid, chid, time, content, author, authorname):
     session = Session()
     message = Messages()
@@ -384,7 +438,7 @@ def guild_is_banned(dgid):
 
     q_guild = session.query(BannedGuilds).filter_by(dgid=dgid).first()
 
-    if q_guild == None:
+    if q_guild is None:
         return False
     else:
         return True
@@ -394,7 +448,7 @@ def settings_created(dsid):
 
     settings = session.query(ServerSettings).filter_by(sid=dsid).first()
 
-    if settings == None:
+    if settings is None:
         return False
     else:
         return True
@@ -430,11 +484,11 @@ def get_belmsg(origid):
 
     belmsg = session.query(Belmsg).filter_by(origid=origid).first()
 
-    if belmsg == None:
+    if belmsg is None:
         return None
     return [belmsg.belvid, belmsg.belch]
 
-def warn(name, userid, reason, time):
+def warn(name, userid, reason, time, sid):
     session = Session()
     warn = Warns()
 
@@ -442,15 +496,16 @@ def warn(name, userid, reason, time):
     warn.userid = userid
     warn.reason = reason
     warn.time = time
+    warn.sid = sid
 
     session.add(warn)
     session.commit()
     session.close()
 
-def get_warns(userid):
+def get_warns(userid, sid):
     session = Session()
 
-    warns = session.query(Warns).filter_by(userid=userid).all()
+    warns = session.query(Warns).filter_by(userid=userid, sid=sid).all()
 
     warnlist = []
 
@@ -459,10 +514,174 @@ def get_warns(userid):
 
     return warnlist
 
-def del_warn(warnid):
+def del_warn(warnid, sid):
     session = Session()
 
-    session.query(Warns).filter_by(warnid=warnid).delete()
+    session.query(Warns).filter_by(warnid=warnid, sid=sid).delete()
+
+    session.commit()
+    session.close()
+
+def tban(uid, name, tend, sid):
+    if get_tban(uid, sid) is not None:
+        raise IntegrityError("A tempban does already exist for this user on this server")
+
+    session = Session()
+
+    tbans = TempBans()
+
+    tbans.uid = uid
+    tbans.name = name
+    tbans.tend = tend
+    tbans.sid = sid
+
+    session.add(tbans)
+    session.commit()
+    session.close()
+
+def get_tban(uid, sid):
+    session = Session()
+
+    utban = session.query(TempBans).filter_by(uid=uid, sid=sid).first()
+
+    if utban is None:
+        return None
+    else:
+        return [utban.name, utban.tend]
+
+def get_tbans():
+    session = Session()
+
+    tbans = session.query(TempBans).all()
+
+    tban_list = []
+
+    for elem in tbans:
+        tban_list.append([elem.uid, elem.name, elem.tend, elem.sid])
+
+    if not tban_list:
+        return None
+    else:
+        return tban_list
+
+def utban(uid, sid):
+    session = Session()
+    session.query(TempBans).filter_by(uid=uid, sid=sid).delete()
+
+    session.commit()
+    session.close()
+
+def set_joinmsg(sid, msg):
+    session = Session()
+    joinmsg = JoinMsg()
+
+    joinmsg.sid = sid
+    joinmsg.msg = msg
+
+    session.add(joinmsg)
+    session.commit()
+    session.close()
+
+def edit_joinmsg(sid, msg):
+    session = Session()
+
+    joinmsg = session.query(JoinMsg).filter_by(sid=sid).first()
+
+    joinmsg.msg = msg
+
+    session.commit()
+    session.close()
+
+
+def get_joinmsg(sid):
+    session = Session()
+
+    joinmsg = session.query(JoinMsg).filter_by(sid=sid).first()
+
+    return joinmsg.msg
+
+def joinmsg_set(sid):
+    session = Session()
+
+    return session.query(JoinMsg).filter_by(sid=sid).first() is not None
+
+
+def tmute(uid, name, tend, sid):
+    if get_tmute(uid, sid) is not None:
+        raise IntegrityError("A tempmute does already exist for this user on this server")
+
+    session = Session()
+
+    tmutes = TempMutes()
+
+    tmutes.uid = uid
+    tmutes.name = name
+    tmutes.tend = tend
+    tmutes.sid = sid
+
+    session.add(tmutes)
+    session.commit()
+    session.close()
+
+def get_tmute(uid, sid):
+    session = Session()
+
+    utmute = session.query(TempMutes).filter_by(uid=uid, sid=sid).first()
+
+    if utmute is None:
+        return None
+    else:
+        return [utmute.name, utmute.tend]
+
+def get_tmutes():
+    session = Session()
+
+    tmutes = session.query(TempMutes).all()
+
+    tmute_list = []
+
+    for elem in tmutes:
+        tmute_list.append([elem.uid, elem.name, elem.tend, elem.sid])
+
+    if not tmute_list:
+        return None
+    else:
+        return tmute_list
+
+def utmute(uid, sid):
+    session = Session()
+    session.query(TempMutes).filter_by(uid=uid, sid=sid).delete()
+
+    session.commit()
+    session.close()
+
+def create_mrole(sid, rid):
+    session = Session()
+
+    tmrole = MuteRole()
+
+    tmrole.sid = sid
+    tmrole.rid = rid
+
+    session.add(tmrole)
+    session.commit()
+    session.close()
+
+def get_muterole(sid):
+    session = Session()
+
+    mrole = session.query(MuteRole).filter_by(sid=sid).first()
+
+    if mrole is None:
+        return None
+    else:
+        return mrole.rid
+
+
+def delete_muterole(sid):
+    session = Session()
+
+    session.query(MuteRole).filter_by(sid=sid).delete()
 
     session.commit()
     session.close()

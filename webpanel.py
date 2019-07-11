@@ -1,14 +1,14 @@
 #Oauth2 code from https://github.com/discordapp/discord-oauth2-example
 
 import os
-from flask import Flask, g, session, redirect, request, url_for, jsonify, abort, render_template, flash
-from requests_oauthlib import OAuth2Session
+
+from flask import Flask, session, redirect, request, url_for, jsonify, render_template, flash
 from flask_wtf import FlaskForm
+from requests_oauthlib import OAuth2Session
 from wtforms import StringField, validators, SubmitField, SelectField
 
-from sql import  get_servers
-
 from helper import hasPerm
+from sql import get_servers
 
 ########################################################################################################################
 

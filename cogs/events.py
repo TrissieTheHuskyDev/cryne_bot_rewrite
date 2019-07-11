@@ -3,6 +3,7 @@ from discord.ext import commands
 import datetime
 import sql
 from sqlalchemy.exc import IntegrityError
+from discord.utils import get
 
 class Events(commands.Cog):
     def __init__(self, bot):
@@ -14,16 +15,21 @@ class Events(commands.Cog):
 
         if len(message.mentions) > 0:
             if message.mentions[0] == self.bot.user:
-                await message.channel.send(
-                    "The prefix for this server currently is: " + str(sql.get_servers()[message.guild.id][1]))
+                await message.channel.send("The prefix for this server currently is: " + str(sql.get_servers()[message.guild.id][1]))
 
-        if message.content == "":
-            sql.log_msg(message.id, message.guild.id, message.channel.id, now, "<EMBED>", message.author.id, str(message.author))
-        else:
-            sql.log_msg(message.id, message.guild.id, message.channel.id, now, message.content, message.author.id, str(message.author))
+        if not isinstance(message.channel, discord.DMChannel):
+            if message.content == "":
+                sql.log_msg(message.id, message.guild.id, message.channel.id, now, "<EMBED>", message.author.id, str(message.author))
+            else:
+                sql.log_msg(message.id, message.guild.id, message.channel.id, now, message.content, message.author.id, str(message.author))
 
     @commands.Cog.listener()
     async def on_ready(self):
+        print("cryne_bot is ready for disaster")
+
+        rpstr = f"on {len(self.bot.guilds)} guilds"
+        await self.bot.change_presence(activity=discord.Game(name=rpstr))
+
         for guild in self.bot.guilds:
             try:
                 sql.create_server(guild.name, guild.id, "cb-")
@@ -38,8 +44,10 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        if sql.guild_is_banned(guild.id) == True:
-            print(sql.guild_is_banned(guild.id))
+        rpstr = f"on {len(self.bot.guilds)} guilds"
+        await self.bot.change_presence(activity=discord.Game(name=rpstr))
+
+        if sql.guild_is_banned(guild.id):
             await guild.leave()
             return
 
@@ -49,6 +57,34 @@ class Events(commands.Cog):
             sql.create_server(guild.name, guild.id, "cb-")
         except IntegrityError as e:
             print("WARN: IntegrityError! Konnte Server {} | {} nicht erstellen!".format(guild.name, guild.id))
-            
+
+    @commands.Cog.listener()
+    async def on_guild_remove(self, guild):
+        rpstr = f"on {len(self.bot.guilds)} guilds"
+        await self.bot.change_presence(activity=discord.Game(name=rpstr))
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        set = sql.get_settings(member.guild.id)
+        jr_name = set["roleonjoin"]
+
+        jr = get(member.guild.roles, name=jr_name)
+
+        await member.add_roles(jr)
+
+        if sql.joinmsg_set(member.guild.id):
+
+            mention = member.mention
+            name = member.name
+            guild = member.guild.name
+
+            joinmsg = sql.get_joinmsg(member.guild.id)
+            await member.send(joinmsg.format(name=name, mention=mention, guild=guild))
+
+        else:
+            await member.send("Welcome to {}".format(member.guild.name))
+
+
+
 def setup(bot):
     bot.add_cog(Events(bot))

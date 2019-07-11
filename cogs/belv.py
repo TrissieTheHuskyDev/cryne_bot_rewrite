@@ -13,7 +13,7 @@ class Belv(commands.Cog):
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
 
-        if sql.get_belmsg(reaction.message.id) != None:
+        if sql.get_belmsg(reaction.message.id) is not None:
             bel_id = sql.get_belmsg(reaction.message.id)
             bel_chid = sql.get_belmsg(reaction.message.id)[1]
             bel_ch = self.bot.get_channel(bel_chid)

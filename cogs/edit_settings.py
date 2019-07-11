@@ -25,9 +25,9 @@ class Edit(commands.Cog):
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
     async def createsettings(self, ctx, logchid, botcchid, remoj, rcount, belvchid, banmsgchid, leavemsgchid, kickmsgchid,
-                             rcmsgchid, adminrole, roleonjoin, rssurl, rsschannelid):
+                             rcmsgchid, adminrole, roleonjoin, rssurl, rsschannelid, reportchid, unbanchid, settingschid):
         valid_channels = []
-        ch_ids = [logchid, botcchid, belvchid, banmsgchid, leavemsgchid, kickmsgchid, rcmsgchid, rsschannelid]
+        ch_ids = [logchid, botcchid, belvchid, banmsgchid, leavemsgchid, kickmsgchid, rcmsgchid, rsschannelid, reportchid, unbanchid, settingschid]
 
         for channel in ctx.guild.channels:
             valid_channels.append(int(channel.id))
@@ -37,7 +37,7 @@ class Edit(commands.Cog):
                 raise ValueError
 
         sql.create_ssettings(ctx.guild.id, logchid, botcchid, remoj, rcount, belvchid, banmsgchid, leavemsgchid,
-                             kickmsgchid, rcmsgchid, adminrole, roleonjoin, rssurl, rsschannelid)
+                             kickmsgchid, rcmsgchid, adminrole, roleonjoin, rssurl, rsschannelid, reportchid, unbanchid, settingschid)
 
     @createsettings.error
     async def createsettings_error(self, ctx, error):
@@ -49,7 +49,7 @@ class Edit(commands.Cog):
         if "TypeError" in str(error):
             await ctx.send("One of the arguments has got the wrong type (mixed up arguments?)")
         if "ValueError" in str(error):
-            await ctx.send("One of the channel IDs are invalid or the bot cant see the channel")
+            await ctx.send("Somee of the channel IDs are invalid or the bot cant see the channel")
 
     @settings_created()
     @commands.guild_only()
@@ -235,16 +235,16 @@ class Edit(commands.Cog):
     @commands.guild_only()
     @commands.command(pass_ctx=True)
     @commands.has_permissions(administrator=True)
-    async def edit_rsschannelid(self, ctx, rsschannelid):
+    async def edit_rsschid(self, ctx, rsschannelid):
         sid = ctx.guild.id
         valid_channels = []
         for channel in ctx.guild.channels:
             valid_channels.append(int(channel.id))
         if int(rsschannelid) not in valid_channels:
             raise ValueError
-        sql.edit_rsschannelid(sid, rsschannelid)
+        sql.edit_rsschid(sid, rsschannelid)
 
-    @edit_rsschannelid.error
+    @edit_rsschid.error
     async def rsschannelid_error(self, ctx, error):
         await ctx.send("An error occured whilst editing this setting! Check your command")
 

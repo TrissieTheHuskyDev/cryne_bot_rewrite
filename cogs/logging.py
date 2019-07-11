@@ -9,10 +9,13 @@ class Logging(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
+        if before.author.bot:
+            return
+
         if before.content == after.content:
             return
 
-        if sql.settings_created(int(before.guild.id)) != True:
+        if not sql.settings_created(int(before.guild.id)):
             return
 
         logchid = sql.get_settings(before.guild.id)["logchid"]
@@ -27,7 +30,10 @@ class Logging(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if sql.settings_created(int(message.guild.id)) != True:
+        if message.author.bot:
+            return
+
+        if not sql.settings_created(int(message.guild.id)):
             return
 
         logchid = sql.get_settings(message.guild.id)["logchid"]
@@ -41,7 +47,7 @@ class Logging(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
-        if sql.settings_created(int(guild.id)) != True:
+        if not sql.settings_created(int(guild.id)):
             return
         banmsgchid = sql.get_settings(guild.id)["banmsgchid"]
         banmsgch = self.bot.get_channel(banmsgchid)
@@ -63,7 +69,7 @@ class Logging(commands.Cog):
     async def on_member_remove(self, member):
         guild = member.guild
 
-        if sql.settings_created(int(guild.id)) != True:
+        if not sql.settings_created(int(guild.id)):
             return
         kickmsgchid = sql.get_settings(guild.id)["kickmsgchid"]
         kickmsgch = self.bot.get_channel(kickmsgchid)
@@ -100,7 +106,7 @@ class Logging(commands.Cog):
     async def on_member_update(self, before, after):
         guild = before.guild
 
-        if sql.settings_created(int(guild.id)) != True:
+        if not sql.settings_created(int(guild.id)):
             return
         rcmsgchid = sql.get_settings(guild.id)["rcmsgchid"]
         rcmsgch = self.bot.get_channel(rcmsgchid)
@@ -140,7 +146,7 @@ class Logging(commands.Cog):
     @commands.Cog.listener()
     async def on_member_unban(self, guild, user):
         print("Unbanning")
-        if sql.settings_created(int(guild.id)) != True:
+        if not sql.settings_created(int(guild.id)):
             return
 
         unbanchid = sql.get_settings(guild.id)["unbanchid"]
